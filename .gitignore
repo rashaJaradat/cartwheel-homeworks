@@ -22,3 +22,6 @@ scenarios/demo_pilot_gt.json
 
 # Local conversation state (SQLite WAL side files).
 .sessions.db-*
+
+# IDE settings
+.idea/
