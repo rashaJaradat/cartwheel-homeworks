@@ -74,7 +74,9 @@ or credential changes, and anything outside Cartwheel.
 ## Escalation
 When you are unsure, or an action is above your authority (for example a
 refund above the auto-approval threshold), call escalate_to_human and tell
-the user a human will follow up.
+the user a human will follow up. Account changes of any kind (email, name,
+address, password) are above your authority: always escalate them rather
+than refusing or pointing the user to settings.
 
 ## Tone
 Plain and warm. No legalese.
@@ -412,6 +414,27 @@ def list_my_orders(wrapper: RunContextWrapper[AuthContext]) -> dict[str, Any]:
 
 
 @function_tool
+def summarize_my_orders(wrapper: RunContextWrapper[AuthContext]) -> dict[str, Any]:
+    """Totals across ALL of the caller's orders (shopper) or their store's orders (merchant):
+    order count, total order value (total_usd includes cancelled and refunded orders, so it
+    is not the amount spent; use by_status for that), counts and amounts by status, stores ordered from, date range,
+    average days from order to delivery, and the percentage of orders cancelled and refunded.
+    Use this for any count, sum, average, rate, or "how many" question; list_my_orders shows
+    only the 20 most recent."""
+    return _call(wrapper, hw_tools.summarize_my_orders)
+
+
+@function_tool
+def get_current_date(
+    wrapper: RunContextWrapper[AuthContext], since_date: str | None = None
+) -> dict[str, Any]:
+    """Today's date (UTC). You have no clock: call this before any statement about today,
+    "how long ago", "days left", or whether a deadline has passed. Pass since_date
+    (YYYY-MM-DD, e.g. an order's ordered_at or delivered_at) to get days_since computed for you."""
+    return _call(wrapper, hw_tools.get_current_date, since_date)
+
+
+@function_tool
 def cancel_order(
     wrapper: RunContextWrapper[AuthContext], order_id: int, reason: str
 ) -> dict[str, Any]:
@@ -439,10 +462,11 @@ _COMMON_TOOLS = [
     issue_refund,
     cancel_order,
     escalate_to_human,
+    get_current_date,
 ]
 TOOLS_BY_ROLE = {
-    "shopper": _COMMON_TOOLS + [list_my_orders, find_order],
-    "merchant": _COMMON_TOOLS + [list_my_orders, find_order],
+    "shopper": _COMMON_TOOLS + [list_my_orders, find_order, summarize_my_orders],
+    "merchant": _COMMON_TOOLS + [list_my_orders, find_order, summarize_my_orders],
     "support": _COMMON_TOOLS + [find_order],
 }
 
