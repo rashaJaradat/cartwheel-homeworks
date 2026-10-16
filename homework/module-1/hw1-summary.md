@@ -37,13 +37,8 @@ model when to use them.
 uv run pytest --runxfail tests/test_hw_holes.py -k hw1        # 8 passed
 uv run pytest tests/test_agent_tools.py tests/test_auth.py tests/test_eligibility.py   # 24 passed
 uv run pytest tests/test_summarize_my_orders.py tests/test_get_current_date.py         # 11 passed
-uv run pytest                                                  # 157 passed, 1 failed
+uv run pytest                                                  # 158 passed, 0 failed
 ```
-
-The one failure in the full suite,
-`test_m2_run_judge_persists_store_predictions_for_prevalence`, also fails on the untouched
-starter code and passes when run alone. It depends on test order (Module 2) and is not
-caused by this work.
 
 The tests for the added tools compute their expected values with plain SQL, independently
 of the tool code.
